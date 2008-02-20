@@ -1,0 +1,8 @@
+This is a mirror of http://www.vim.org/scripts/script.php?script_id=2145
+
+Vim syntax and indent files for GObject Builder (gob2)
+
+It works well with gtk-vim-syntax (vimscript #1000) package. 
+
+Basically, it depends on c.vim, so change in c.vim will also affect it.
+

@@ -1,0 +1,9 @@
+Thu Feb 21 2008, Ver 0.3
+- Better recognition of CBlock (e.g. %headertop{, %alltop{, .... }
+- Add ftplugin/gob.vim
+
+Tue Feb 19 2008, Ver 0.2
+- Add doxygen support
+- Add ChangeLog
+- Modify indent which similar to java
+	

@@ -15,7 +15,7 @@ setlocal cindent
 
 " The "from"  lines start off with the wrong indent.
 "setlocal indentkeys& indentkeys+=0=from
-setlocal indentkeys+==public\ ,=protected\ ,=private\ ,=%},0\\
+setlocal indentkeys+==public\ ,=protected\ ,=private\ ,=property\ ,=%},0\\
 
 
 " Set the function to do the work.
@@ -50,6 +50,8 @@ function! SkipGobBlanksAndComments(startline)
   return lnum
 endfunction
 
+
+
 function IsCBlockHeader(linenum)
   let ret=getline(a:linenum) =~ '^\s*%.*{'
   return  ret
@@ -57,29 +59,9 @@ endfunction
 
 function IsHashedLine(linenum)
   let ret=getline(a:linenum) =~ '^#'
+  echo "#linenum=" a:linenum " ret=" ret
   return  ret
 endfunction
-
-function IsLineHasAccess(linenum)
-  let ret=getline(a:linenum) =~ '^\s*\(public\|protected\|private)\s'
-  "  if (ret)
-  "    echo "linenum=" a:linenum " ret=" ret " yes"
-  "  else  
-  "    echo "linenum=" a:linenum " ret=" ret " no"
-  "  endif
-  return  ret
-endfunction
-
-function IsMethodModifier(linenum)
-  let ret=getline(a:linenum) =~ '^\s*\(signal\|override\|virtual\)\s*'
-  if (ret)
-    echo "linenum=" a:linenum " ret=" ret " yes"
-  else  
-    echo "linenum=" a:linenum " ret=" ret " no"
-  endif
-  return  ret
-endfunction
-
 
 function SkipGobBlanksAndCommentsAndHashedLine(startline)
   let lnum = a:startline
@@ -92,6 +74,27 @@ function SkipGobBlanksAndCommentsAndHashedLine(startline)
     endif  
   endwhile
   return lnum
+endfunction
+
+
+function IsLineHasAccess(linenum)
+  let ret=getline(a:linenum) =~ '^\s*\(public\|protected\|private\|property\)\s'
+"  if (ret)
+"    echo "linenum=" a:linenum " ret=" ret " yes"
+"  else  
+"    echo "linenum=" a:linenum " ret=" ret " no"
+"  endif
+  return  ret
+endfunction
+
+function IsLineHasMethodModifiers(linenum)
+  let ret=getline(a:linenum) =~ '^\s*\(virtual\|signal\|override\)'
+  "  if (ret)
+  "    echo "linenum=" a:linenum " ret=" ret " yes"
+  "  else  
+  "    echo "linenum=" a:linenum " ret=" ret " no"
+  "  endif
+  return  ret
 endfunction
 
 function! FindPrevAccessLine(startline)
@@ -131,6 +134,14 @@ function GetGobIndent()
   " specific cases.
   let theIndent = cindent(v:lnum)
 
+"  if getline(v:lnum) =~ '^\s**'
+"    let retlnum=FindPrevCommentLine(v:lnum -1)
+"    echo  "v:lnum=" v:lnum " lnum=" lnum " retlnum=" retlnum " theIndent=" theIndent " cindent(retlnum)=" cindent(retlnum) " indent(retlnum)=" indent(retlnum)
+"    if retlnum
+"      return indent(retlnum)+1
+"    endif
+"  endif
+
   " If we're in the middle of a comment then just trust cindent
   if getline(v:lnum) =~ '^\s*\*'
     return theIndent
@@ -144,7 +155,12 @@ function GetGobIndent()
 "      echo  "v:lnum=" v:lnum " lnum=" lnum " retlnum=" retlnum " cindent(retlnum)=" cindent(retlnum) " indent(retlnum)=" indent(retlnum)
       return indent(retlnum)
     endif
-  endif    
+  endif
+
+  " Adjust the lines after method modifiers
+  if IsLineHasMethodModifiers(v:lnum -1)
+    return indent(v:lnum-1)
+  endif
 
 
   " find start of previous line, in case it was a continuation line
@@ -159,15 +175,9 @@ function GetGobIndent()
     let prev = next_prev
   endwhile
 
-  echo  "v:lnum=" v:lnum " lnum=" lnum " prev=" prev " cindent(prev)=" cindent(prev) " indent(prev)=" indent(prev)
+  "echo  "v:lnum=" v:lnum " lnum=" lnum " prev=" prev " cindent(prev)=" cindent(prev) " indent(prev)=" indent(prev)
 
   if IsCBlockHeader(prev)
-    echo  "IsCBlockHeader prev=" prev 
-    return cindent(prev)
-  endif
-
-  if IsMethodModifier(prev)
-    echo  "IsMethodModifier prev=" prev 
     return cindent(prev)
   endif
 

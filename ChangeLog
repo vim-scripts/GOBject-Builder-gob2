@@ -1,3 +1,8 @@
+Wed Mar 12 2008, Ver 0.5
+- Fix align after override signnal virtual
+- Add LONG, object_type, export, link as keyword
+
+
 Mon Mar 03 2008, Ver 0.4
 - Fix align with destroy(with) unref(with)
 - Fix indent after %{ tags

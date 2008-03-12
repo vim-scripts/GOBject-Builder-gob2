@@ -13,4 +13,15 @@ endif
 " Behaves just like C
 runtime! ftplugin/c.vim ftplugin/c_*.vim ftplugin/c/*.vim
 
+" Let the matchit plugin know what items can be matched.
+
+runtime! macros/matchit.vim 
+if exists("loaded_matchit")
+    let b:match_ignorecase = 0
+    let b:match_words =
+                \ '\<public\>:\<protected\>:\<private\>:\<signal\>:\<virtual\>:\<override\>' 
+    " Ignore ":syntax region" commands, the 'end' argument clobbers if-endif
+    let b:match_skip = 'getline(".") =~ "^\\s*sy\\%[ntax]\\s\\+region" ||
+                \ synIDattr(synID(line("."),col("."),1),"name") =~? "comment\\|string"'
+endif
 
